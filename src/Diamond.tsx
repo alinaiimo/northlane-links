@@ -1,11 +1,23 @@
-{
-  "version": 1,
-  "asset_id": "9a803eed-9d7a-4205-8da7-3042e7642aab",
-  "project_id": "9f0600f7-d004-4a03-be15-e8a32dada414",
-  "url": "/__l5e/assets-v1/9a803eed-9d7a-4205-8da7-3042e7642aab/harbor.jpg",
-  "r2_key": "a/v1/9f0600f7-d004-4a03-be15-e8a32dada414/9a803eed-9d7a-4205-8da7-3042e7642aab/harbor.jpg",
-  "original_filename": "harbor.jpg",
-  "size": 111548,
-  "content_type": "image/jpeg",
-  "created_at": "2026-06-05T07:21:24Z"
+export function Diamond({ className = "" }: { className?: string }) {
+  return (
+    <span
+      className={`inline-block rotate-45 bg-foreground/80 ${className}`}
+      style={{ width: "6px", height: "6px" }}
+      aria-hidden
+    />
+  );
+}
+
+export function Divider({ label }: { label?: string }) {
+  return (
+    <div className="flex items-center gap-4 w-full max-w-md mx-auto">
+      <div className="h-px flex-1 hairline" />
+      {label ? (
+        <span className="eyebrow text-foreground/70">{label}</span>
+      ) : (
+        <Diamond />
+      )}
+      <div className="h-px flex-1 hairline" />
+    </div>
+  );
 }
