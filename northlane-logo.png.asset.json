@@ -1,4 +1,11 @@
 {
-  "schemaVersion": 1,
-  "template": "tanstack_start_ts_2026-05-29"
+  "version": 1,
+  "asset_id": "7438c6a0-9e82-4634-8be6-4b9a30109180",
+  "project_id": "9f0600f7-d004-4a03-be15-e8a32dada414",
+  "url": "/__l5e/assets-v1/7438c6a0-9e82-4634-8be6-4b9a30109180/northlane-logo.png",
+  "r2_key": "a/v1/9f0600f7-d004-4a03-be15-e8a32dada414/7438c6a0-9e82-4634-8be6-4b9a30109180/northlane-logo.png",
+  "original_filename": "northlane-logo.png",
+  "size": 780551,
+  "content_type": "image/png",
+  "created_at": "2026-06-05T05:32:08Z"
 }
