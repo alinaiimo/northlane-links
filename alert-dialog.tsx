@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "asset_id": "a1d39e1e-a7ec-44e7-b345-081d5b5a3524",
+  "asset_id": "0ebc70b6-4498-4f82-b7a2-2b90c9482412",
   "project_id": "9f0600f7-d004-4a03-be15-e8a32dada414",
-  "url": "/__l5e/assets-v1/a1d39e1e-a7ec-44e7-b345-081d5b5a3524/maison.jpg",
-  "r2_key": "a/v1/9f0600f7-d004-4a03-be15-e8a32dada414/a1d39e1e-a7ec-44e7-b345-081d5b5a3524/maison.jpg",
-  "original_filename": "maison.jpg",
-  "size": 102046,
+  "url": "/__l5e/assets-v1/0ebc70b6-4498-4f82-b7a2-2b90c9482412/noir.jpg",
+  "r2_key": "a/v1/9f0600f7-d004-4a03-be15-e8a32dada414/0ebc70b6-4498-4f82-b7a2-2b90c9482412/noir.jpg",
+  "original_filename": "noir.jpg",
+  "size": 82691,
   "content_type": "image/jpeg",
-  "created_at": "2026-06-05T07:24:10Z"
+  "created_at": "2026-06-05T07:21:24Z"
 }

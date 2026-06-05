@@ -1,22 +1,26 @@
-import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
+import process from "node:process";
 
-import { getServerConfig } from "../config.server";
+// Server-only config. The .server.ts suffix prevents Vite from bundling
+// this file into the client — values here never reach the browser.
+//
+// On Cloudflare Workers, env binds at REQUEST time. Module-scope reads
+// (e.g. `const x = process.env.X`) resolve to undefined — always read
+// process.env INSIDE a function or handler.
+//
+// When to use which env-access pattern:
+//   - .server.ts module (this file): server-only helpers reused across
+//     handlers. Wrap reads in a function so they run per-request.
+//   - inline process.env inside a createServerFn handler: one-off reads
+//     not reused elsewhere.
+//   - import.meta.env.VITE_FOO: PUBLIC config readable from both client
+//     and server (analytics IDs, public URLs). Define in .env with the
+//     VITE_ prefix. Never put secrets here — they ship to the browser.
 
-// Example createServerFn. Server-side handler invoked from the client:
-//   const result = await getGreeting({ data: { name: "Ada" } })
-// The .handler body runs server-only — imports used only inside it (like
-// .server.ts modules) are tree-shaken from the client bundle. Module-level
-// code here still ships to the client; for truly server-only helpers, put
-// them in a .server.ts file. Use this pattern instead of Supabase Edge
-// Functions for server logic.
-
-export const getGreeting = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ name: z.string().min(1) }))
-  .handler(async ({ data }) => {
-    const config = getServerConfig();
-    return {
-      greeting: `Hello, ${data.name}!`,
-      mode: config.nodeEnv ?? "unknown",
-    };
-  });
+export function getServerConfig() {
+  return {
+    nodeEnv: process.env.NODE_ENV,
+    // Add server-only values here, e.g.:
+    //   databaseUrl: process.env.DATABASE_URL,
+    //   stripeSecretKey: process.env.STRIPE_SECRET_KEY,
+  };
+}
