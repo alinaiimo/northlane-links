@@ -1,21 +1,22 @@
-import * as React from "react";
+import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
 
-import { cn } from "@/lib/utils";
+import { getServerConfig } from "../config.server";
 
-const Textarea = React.forwardRef<HTMLTextAreaElement, React.ComponentProps<"textarea">>(
-  ({ className, ...props }, ref) => {
-    return (
-      <textarea
-        className={cn(
-          "flex min-h-[60px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-          className,
-        )}
-        ref={ref}
-        {...props}
-      />
-    );
-  },
-);
-Textarea.displayName = "Textarea";
+// Example createServerFn. Server-side handler invoked from the client:
+//   const result = await getGreeting({ data: { name: "Ada" } })
+// The .handler body runs server-only — imports used only inside it (like
+// .server.ts modules) are tree-shaken from the client bundle. Module-level
+// code here still ships to the client; for truly server-only helpers, put
+// them in a .server.ts file. Use this pattern instead of Supabase Edge
+// Functions for server logic.
 
-export { Textarea };
+export const getGreeting = createServerFn({ method: "POST" })
+  .inputValidator(z.object({ name: z.string().min(1) }))
+  .handler(async ({ data }) => {
+    const config = getServerConfig();
+    return {
+      greeting: `Hello, ${data.name}!`,
+      mode: config.nodeEnv ?? "unknown",
+    };
+  });

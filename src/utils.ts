@@ -1,19 +1,36 @@
-import * as React from "react";
+type LovableErrorOptions = {
+  mechanism?: "manual" | "onerror" | "unhandledrejection" | "react_error_boundary";
+  handled?: boolean;
+  severity?: "error" | "warning" | "info";
+};
 
-const MOBILE_BREAKPOINT = 768;
+type LovableEvents = {
+  captureException?: (
+    error: unknown,
+    context?: Record<string, unknown>,
+    options?: LovableErrorOptions,
+  ) => void;
+};
 
-export function useIsMobile() {
-  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined);
+declare global {
+  interface Window {
+    __lovableEvents?: LovableEvents;
+  }
+}
 
-  React.useEffect(() => {
-    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);
-    const onChange = () => {
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
-    };
-    mql.addEventListener("change", onChange);
-    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
-    return () => mql.removeEventListener("change", onChange);
-  }, []);
-
-  return !!isMobile;
+export function reportLovableError(error: unknown, context: Record<string, unknown> = {}) {
+  if (typeof window === "undefined") return;
+  window.__lovableEvents?.captureException?.(
+    error,
+    {
+      source: "react_error_boundary",
+      route: window.location.pathname,
+      ...context,
+    },
+    {
+      mechanism: "react_error_boundary",
+      handled: false,
+      severity: "error",
+    },
+  );
 }

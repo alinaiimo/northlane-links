@@ -1,57 +1,22 @@
-"use client";
+import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
 
-import * as React from "react";
-import * as ToggleGroupPrimitive from "@radix-ui/react-toggle-group";
-import { type VariantProps } from "class-variance-authority";
+import { getServerConfig } from "../config.server";
 
-import { cn } from "@/lib/utils";
-import { toggleVariants } from "@/components/ui/toggle";
+// Example createServerFn. Server-side handler invoked from the client:
+//   const result = await getGreeting({ data: { name: "Ada" } })
+// The .handler body runs server-only — imports used only inside it (like
+// .server.ts modules) are tree-shaken from the client bundle. Module-level
+// code here still ships to the client; for truly server-only helpers, put
+// them in a .server.ts file. Use this pattern instead of Supabase Edge
+// Functions for server logic.
 
-const ToggleGroupContext = React.createContext<VariantProps<typeof toggleVariants>>({
-  size: "default",
-  variant: "default",
-});
-
-const ToggleGroup = React.forwardRef<
-  React.ElementRef<typeof ToggleGroupPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof ToggleGroupPrimitive.Root> &
-    VariantProps<typeof toggleVariants>
->(({ className, variant, size, children, ...props }, ref) => (
-  <ToggleGroupPrimitive.Root
-    ref={ref}
-    className={cn("flex items-center justify-center gap-1", className)}
-    {...props}
-  >
-    <ToggleGroupContext.Provider value={{ variant, size }}>{children}</ToggleGroupContext.Provider>
-  </ToggleGroupPrimitive.Root>
-));
-
-ToggleGroup.displayName = ToggleGroupPrimitive.Root.displayName;
-
-const ToggleGroupItem = React.forwardRef<
-  React.ElementRef<typeof ToggleGroupPrimitive.Item>,
-  React.ComponentPropsWithoutRef<typeof ToggleGroupPrimitive.Item> &
-    VariantProps<typeof toggleVariants>
->(({ className, children, variant, size, ...props }, ref) => {
-  const context = React.useContext(ToggleGroupContext);
-
-  return (
-    <ToggleGroupPrimitive.Item
-      ref={ref}
-      className={cn(
-        toggleVariants({
-          variant: context.variant || variant,
-          size: context.size || size,
-        }),
-        className,
-      )}
-      {...props}
-    >
-      {children}
-    </ToggleGroupPrimitive.Item>
-  );
-});
-
-ToggleGroupItem.displayName = ToggleGroupPrimitive.Item.displayName;
-
-export { ToggleGroup, ToggleGroupItem };
+export const getGreeting = createServerFn({ method: "POST" })
+  .inputValidator(z.object({ name: z.string().min(1) }))
+  .handler(async ({ data }) => {
+    const config = getServerConfig();
+    return {
+      greeting: `Hello, ${data.name}!`,
+      mode: config.nodeEnv ?? "unknown",
+    };
+  });
