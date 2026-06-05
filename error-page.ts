@@ -1,32 +1,26 @@
-"use client";
+import process from "node:process";
 
-import * as React from "react";
-import * as TooltipPrimitive from "@radix-ui/react-tooltip";
+// Server-only config. The .server.ts suffix prevents Vite from bundling
+// this file into the client — values here never reach the browser.
+//
+// On Cloudflare Workers, env binds at REQUEST time. Module-scope reads
+// (e.g. `const x = process.env.X`) resolve to undefined — always read
+// process.env INSIDE a function or handler.
+//
+// When to use which env-access pattern:
+//   - .server.ts module (this file): server-only helpers reused across
+//     handlers. Wrap reads in a function so they run per-request.
+//   - inline process.env inside a createServerFn handler: one-off reads
+//     not reused elsewhere.
+//   - import.meta.env.VITE_FOO: PUBLIC config readable from both client
+//     and server (analytics IDs, public URLs). Define in .env with the
+//     VITE_ prefix. Never put secrets here — they ship to the browser.
 
-import { cn } from "@/lib/utils";
-
-const TooltipProvider = TooltipPrimitive.Provider;
-
-const Tooltip = TooltipPrimitive.Root;
-
-const TooltipTrigger = TooltipPrimitive.Trigger;
-
-const TooltipContent = React.forwardRef<
-  React.ElementRef<typeof TooltipPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
->(({ className, sideOffset = 4, ...props }, ref) => (
-  <TooltipPrimitive.Portal>
-    <TooltipPrimitive.Content
-      ref={ref}
-      sideOffset={sideOffset}
-      className={cn(
-        "z-50 overflow-hidden rounded-md bg-primary px-3 py-1.5 text-xs text-primary-foreground animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-(--radix-tooltip-content-transform-origin)",
-        className,
-      )}
-      {...props}
-    />
-  </TooltipPrimitive.Portal>
-));
-TooltipContent.displayName = TooltipPrimitive.Content.displayName;
-
-export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider };
+export function getServerConfig() {
+  return {
+    nodeEnv: process.env.NODE_ENV,
+    // Add server-only values here, e.g.:
+    //   databaseUrl: process.env.DATABASE_URL,
+    //   stripeSecretKey: process.env.STRIPE_SECRET_KEY,
+  };
+}

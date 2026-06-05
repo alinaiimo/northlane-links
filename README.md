@@ -1,22 +1,36 @@
-import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
+type LovableErrorOptions = {
+  mechanism?: "manual" | "onerror" | "unhandledrejection" | "react_error_boundary";
+  handled?: boolean;
+  severity?: "error" | "warning" | "info";
+};
 
-import { getServerConfig } from "../config.server";
+type LovableEvents = {
+  captureException?: (
+    error: unknown,
+    context?: Record<string, unknown>,
+    options?: LovableErrorOptions,
+  ) => void;
+};
 
-// Example createServerFn. Server-side handler invoked from the client:
-//   const result = await getGreeting({ data: { name: "Ada" } })
-// The .handler body runs server-only — imports used only inside it (like
-// .server.ts modules) are tree-shaken from the client bundle. Module-level
-// code here still ships to the client; for truly server-only helpers, put
-// them in a .server.ts file. Use this pattern instead of Supabase Edge
-// Functions for server logic.
+declare global {
+  interface Window {
+    __lovableEvents?: LovableEvents;
+  }
+}
 
-export const getGreeting = createServerFn({ method: "POST" })
-  .inputValidator(z.object({ name: z.string().min(1) }))
-  .handler(async ({ data }) => {
-    const config = getServerConfig();
-    return {
-      greeting: `Hello, ${data.name}!`,
-      mode: config.nodeEnv ?? "unknown",
-    };
-  });
+export function reportLovableError(error: unknown, context: Record<string, unknown> = {}) {
+  if (typeof window === "undefined") return;
+  window.__lovableEvents?.captureException?.(
+    error,
+    {
+      source: "react_error_boundary",
+      route: window.location.pathname,
+      ...context,
+    },
+    {
+      mechanism: "react_error_boundary",
+      handled: false,
+      severity: "error",
+    },
+  );
+}
